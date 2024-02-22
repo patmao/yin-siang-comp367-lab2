@@ -20,9 +20,9 @@ public class LabController {
 	private String getGreeting() {
         LocalTime currentTime = LocalTime.now();
         if (currentTime.isBefore(LocalTime.NOON)) {
-            return "Good morning, Yin-Siang";
+            return "Good Morning, Yin-Siang";
         } else {
-            return "Good evening, Yin-Siang";
+            return "Good Evening, Yin-Siang";
         }
     }
 }
