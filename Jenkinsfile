@@ -4,19 +4,59 @@ pipeline {
     tools {
         // Install the Maven version configured as "M3" and add it to the path.
         maven "MAVEN3"
-        jdk "JDK"
     }
 
     stages {
-        stage('Build') {
+        stage('Checkout and Build') {
             steps {
                 // Get some code from a GitHub repository
-                git 'https://github.com/patmao/yin-siang-comp367-lab2.git'
-
-                // To run Maven on a Windows agent, use
-                bat "mvn -Dmaven.test.failure.ignore=true clean compile"
+                git branch: 'master', url: 'https://github.com/patmao/yin-siang-comp367-lab2'
+                // Run Maven with Jacoco for code coverage
+                bat "mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent package"
             }
-
+            post {
+                success {
+                    junit '/target/surefire-reports/TEST-*.xml'
+                    archiveArtifacts 'target/*.jar'
+                }
+            }
         }
-    }
+        
+        stage("Code Coverage") {
+            steps {
+                script {
+                    // Publish Jacoco coverage report
+                    bat "mvn org.jacoco:jacoco-maven-plugin:report"
+                    jacoco(execPattern: 'target/.exec')
+                }
+                
+            }
+        }
+        
+        stage("Login to Docker Hub") {
+            steps {
+                script {
+                    withCredentials([string(credentialsId: 'dockerhub-pwd', variable: 'dockerhubpwd')]) {
+                        bat 'docker login -u patmao -p "patrick335220"'
+                    }
+                }
+            }
+        }
+        
+        stage("Build Docker Image") {
+            steps {
+                script {
+                    bat "docker build -t patmao/yinsiangmao_comp367_lab2 ."
+                }
+            }
+        }
+        
+        stage("Push Image to Docker Hub") {
+            steps {
+                script {
+                    bat 'docker push patmao/yinsiangmao_comp367_lab2 '
+                }
+            }
+        }
+    }
 }
