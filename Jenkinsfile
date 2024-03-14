@@ -2,16 +2,13 @@ pipeline {
     agent any
 
     tools {
-        // Install the Maven version configured as "M3" and add it to the path.
         maven "MAVEN3"
     }
 
     stages {
         stage('Checkout and Build') {
             steps {
-                // Get some code from a GitHub repository
                 git branch: 'master', url: 'https://github.com/patmao/yin-siang-comp367-lab2'
-                // Run Maven with Jacoco for code coverage
                 bat "mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent package"
             }
             post {
@@ -25,7 +22,6 @@ pipeline {
         stage("Code Coverage") {
             steps {
                 script {
-                    // Publish Jacoco coverage report
                     bat "mvn org.jacoco:jacoco-maven-plugin:report"
                     jacoco(execPattern: 'target/.exec')
                 }
@@ -54,9 +50,9 @@ pipeline {
         stage("Push Image to Docker Hub") {
             steps {
                 script {
-                    bat 'docker push patmao/yinsiangmao_comp367_lab2 '
+                    bat 'docker push patmao/yinsiangmao_comp367_lab2'
                 }
             }
-        }
-    }
+        }
+    }
 }
