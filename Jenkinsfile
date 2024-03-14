@@ -33,9 +33,9 @@ pipeline {
         stage("Login to Docker Hub") {
             steps {
                 script {
-                    withCredentials([string(credentialsId: 'dockerhub-pwd', variable: 'dockerhubpwd')]) {
-                        bat 'docker login -u patmao -p "patrick335220"'
-                    }
+                   
+                       bat 'docker login -u patmao -p "patrick335220"'
+                   
                 }
             }
         }
